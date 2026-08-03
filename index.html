@@ -799,66 +799,214 @@ Selecione a Regional, Polo, Base e Categoria para iniciar a conferência física
 let materiais = [];
 
 /* ==========================================
+HELPERS
+========================================== */
+
+function el(id){
+    return document.getElementById(id);
+}
+
+function valor(id){
+    const campo = el(id);
+
+    return campo
+    ? String(campo.value || "").trim()
+    : "";
+}
+
+function numero(valor){
+    return Number(valor || 0);
+}
+
+/* ==========================================
 INICIAR INVENTÁRIO
 ========================================== */
 
 async function iniciarInventario(){
 
-    const regional =
-    document.getElementById(
-        "regional"
-    ).value;
+    try{
 
-    const polo =
-    document.getElementById(
-        "polo"
-    ).value;
+        if(
+            typeof authFetch !== "function" ||
+            typeof API === "undefined"
+        ){
+            alert(
+                "Sessão não encontrada. Faça login novamente."
+            );
 
-    const base =
-    document.getElementById(
-        "base"
-    ).value;
+            return;
+        }
 
-    const categoria =
-    document.getElementById(
-        "categoria"
-    ).value;
+        const regional =
+        valor("regional");
 
-    if(
-        !confirm(
-            `Deseja iniciar o inventário?\n\nRegional: ${regional}\nPolo: ${polo}\nBase: ${base}\nCategoria: ${categoria}`
-        )
-    ){
-        return;
+        const polo =
+        valor("polo");
+
+        const base =
+        valor("base");
+
+        const categoria =
+        valor("categoria");
+
+        if(
+            !regional ||
+            regional === "Selecione"
+        ){
+            alert(
+                "Selecione a regional."
+            );
+
+            return;
+        }
+
+        if(
+            !polo ||
+            polo === "Selecione"
+        ){
+            alert(
+                "Selecione o polo."
+            );
+
+            return;
+        }
+
+        if(
+            !base ||
+            base === "Selecione"
+        ){
+            alert(
+                "Selecione a base."
+            );
+
+            return;
+        }
+
+        const confirmar =
+        confirm(
+            `Deseja iniciar o inventário?
+
+Regional: ${regional}
+Polo: ${polo}
+Base: ${base}
+Categoria: ${categoria}`
+        );
+
+        if(!confirmar){
+            return;
+        }
+
+        const url =
+        `${API}/inventario/materiais` +
+        `?regional=${encodeURIComponent(regional)}` +
+        `&polo=${encodeURIComponent(polo)}` +
+        `&base=${encodeURIComponent(base)}` +
+        `&categoria=${encodeURIComponent(categoria)}`;
+
+        const resp =
+        await authFetch(
+            url
+        );
+
+        const dados =
+        await resp.json();
+
+        if(
+            !resp.ok ||
+            dados.sucesso === false
+        ){
+            throw new Error(
+                dados.mensagem ||
+                "Erro ao buscar materiais para inventário."
+            );
+        }
+
+        materiais =
+        dados.dados || [];
+
+        if(
+            materiais.length === 0
+        ){
+            alert(
+                "Nenhum material encontrado para os filtros selecionados."
+            );
+
+            limparInventario();
+
+            return;
+        }
+
+        el("inventarioArea").style.display =
+        "block";
+
+        el("resultadoFinal").style.display =
+        "none";
+
+        const cardsResumo =
+        document.querySelector(
+            ".cardsResumo"
+        );
+
+        if(cardsResumo){
+            cardsResumo.style.display =
+            "grid";
+        }
+
+        el("kpiTotal").innerHTML =
+        materiais.length;
+
+        el("kpiContados").innerHTML =
+        0;
+
+        el("kpiDivergencias").innerHTML =
+        0;
+
+        el("kpiAcuracidade").innerHTML =
+        "0%";
+
+        renderInventario();
+
+        el("inventarioArea").scrollIntoView({
+            behavior:"smooth",
+            block:"start"
+        });
+
+    }catch(e){
+
+        console.error(e);
+
+        alert(
+            "❌ " + e.message
+        );
+
     }
 
-    document.querySelector(
-        ".cardsResumo"
-    ).style.display = "grid";
+}
 
-    /*
-      TROCAR PELO WORKER
-    */
+/* ==========================================
+LIMPAR INVENTÁRIO
+========================================== */
 
-    const resp = await authFetch(
-    `${API}/inventario/materiais?regional=${regional}&polo=${polo}&base=${base}&categoria=${categoria}`
-);
+function limparInventario(){
 
-const dados = await resp.json();
+    materiais = [];
 
-materiais = dados.dados || [];
+    if(el("listaMateriais")){
+        el("listaMateriais").innerHTML = "";
+    }
 
-    document.getElementById(
-        "kpiTotal"
-    ).innerHTML =
-    materiais.length;
+    if(el("inventarioArea")){
+        el("inventarioArea").style.display = "none";
+    }
 
-    document.getElementById(
-        "inventarioArea"
-    ).style.display =
-    "block";
+    if(el("resultadoFinal")){
+        el("resultadoFinal").style.display = "none";
+    }
 
-    renderInventario();
+    if(el("kpiTotal")) el("kpiTotal").innerHTML = 0;
+    if(el("kpiContados")) el("kpiContados").innerHTML = 0;
+    if(el("kpiDivergencias")) el("kpiDivergencias").innerHTML = 0;
+    if(el("kpiAcuracidade")) el("kpiAcuracidade").innerHTML = "0%";
 
 }
 
@@ -868,108 +1016,182 @@ RENDERIZA ITENS
 
 function renderInventario(){
 
+    const lista =
+    el("listaMateriais");
+
+    if(!lista){
+        return;
+    }
+
     const html =
-    materiais.map((m,i) => `
+    materiais.map((m,i) => {
 
-        <div class="item">
+        const codigo =
+        m.codigo || "-";
 
-            <div class="item-header">
+        const nome =
+        m.nome ||
+        m.material ||
+        m.equipamento ||
+        "Material sem nome";
 
-                <h3>
-                    ${m.nome}
-                </h3>
+        const estoque =
+        numero(
+            m.estoque ||
+            m.quantidade ||
+            0
+        );
 
-                <span class="codigo">
-                    ${m.codigo}
-                </span>
+        const categoria =
+        m.categoria || "";
 
-            </div>
+        const base =
+        m.base ||
+        m.localizacao ||
+        "";
 
-            <div class="item-grid">
+        return `
 
-                <div>
+            <div class="item">
 
-                    <label>
-                        Quantidade Sistema
-                    </label>
+                <div class="item-header">
 
-                    <input
-                    disabled
-                    class="sistema"
-                    value="${m.estoque}">
+                    <div>
 
-                </div>
+                        <h3>
+                            ${nome}
+                        </h3>
 
-                <div>
+                        <small>
+                            ${categoria}
+                            ${base ? " | " + base : ""}
+                        </small>
 
-                    <label>
-                        Quantidade Contada
-                    </label>
+                    </div>
 
-                    <input
-                    type="number"
-                    value="${m.estoque}"
-                    id="contado_${i}"
-
-                    oninput="
-                    atualizarStatus(${i})
-                    ">
-
-                </div>
-
-                <div>
-
-                    <label>
-                        Observação
-                    </label>
-
-                    <input
-                    id="obs_${i}"
-                    placeholder="Observações do inventário">
+                    <span class="codigo">
+                        ${codigo}
+                    </span>
 
                 </div>
 
+                <div class="item-grid">
+
+                    <div>
+
+                        <label>
+                            Quantidade Sistema
+                        </label>
+
+                        <input
+                        disabled
+                        class="sistema"
+                        value="${estoque}">
+
+                    </div>
+
+                    <div>
+
+                        <label>
+                            Quantidade Contada
+                        </label>
+
+                        <input
+                        type="number"
+                        min="0"
+                        value=""
+                        id="contado_${i}"
+                        placeholder="Informe"
+                        oninput="atualizarStatus(${i})">
+
+                    </div>
+
+                    <div>
+
+                        <label>
+                            Observação
+                        </label>
+
+                        <input
+                        id="obs_${i}"
+                        placeholder="Ex.: faltando, sobra, danificado...">
+
+                    </div>
+
+                </div>
+
+                <div
+                id="status_${i}"
+                class="status">
+
+                    Aguardando contagem
+
+                </div>
+
             </div>
 
-            <div
-            id="status_${i}"
-            class="status ok">
+        `;
 
-                ✅ Conforme
+    }).join("");
 
-            </div>
-
-        </div>
-
-    `).join("");
-
-    document.getElementById(
-        "listaMateriais"
-    ).innerHTML =
+    lista.innerHTML =
     html;
 
 }
 
 /* ==========================================
-ATUALIZA STATUS
+ATUALIZA STATUS DO ITEM
 ========================================== */
 
 function atualizarStatus(indice){
 
-    const sistema =
-    materiais[indice].estoque;
+    const material =
+    materiais[indice];
 
-    const contado =
-    Number(
-        document.getElementById(
-            `contado_${indice}`
-        ).value
+    if(!material){
+        return;
+    }
+
+    const sistema =
+    numero(
+        material.estoque ||
+        material.quantidade ||
+        0
     );
+
+    const campoContado =
+    el(`contado_${indice}`);
 
     const status =
-    document.getElementById(
-        `status_${indice}`
-    );
+    el(`status_${indice}`);
+
+    if(
+        !campoContado ||
+        !status
+    ){
+        return;
+    }
+
+    const valorDigitado =
+    String(
+        campoContado.value || ""
+    ).trim();
+
+    if(valorDigitado === ""){
+
+        status.className =
+        "status";
+
+        status.innerHTML =
+        "Aguardando contagem";
+
+        atualizarKpis();
+
+        return;
+    }
+
+    const contado =
+    Number(valorDigitado);
 
     if(contado === sistema){
 
@@ -979,8 +1201,7 @@ function atualizarStatus(indice){
         status.innerHTML =
         "✅ Conforme";
 
-    }
-    else{
+    }else{
 
         const diferenca =
         contado - sistema;
@@ -989,7 +1210,7 @@ function atualizarStatus(indice){
         "status divergencia";
 
         status.innerHTML =
-        `⚠ Divergência (${diferenca})`;
+        `⚠ Divergência: ${diferenca}`;
 
     }
 
@@ -998,7 +1219,7 @@ function atualizarStatus(indice){
 }
 
 /* ==========================================
-KPIs
+ATUALIZA KPIs
 ========================================== */
 
 function atualizarKpis(){
@@ -1006,133 +1227,162 @@ function atualizarKpis(){
     let conferidos = 0;
     let divergencias = 0;
 
-    materiais.forEach((m,i)=>{
+    materiais.forEach((m,i) => {
 
-        const contado =
-        Number(
-            document.getElementById(
-                `contado_${i}`
-            ).value
-        );
+        const campo =
+        el(`contado_${i}`);
 
-        if(!isNaN(contado)){
-
-            conferidos++;
-
-            if(
-                contado !== m.estoque
-            ){
-                divergencias++;
-            }
-
+        if(!campo){
+            return;
         }
 
-    });
+        const valorDigitado =
+        String(
+            campo.value || ""
+        ).trim();
 
-    const acuracidade =
+        if(valorDigitado === ""){
+            return;
+        }
 
-        conferidos
-        ?
-
-        (
-            (conferidos-divergencias)
-            /
-            conferidos
-        )*100
-
-        :
-
-        0;
-
-    document.getElementById(
-        "kpiContados"
-    ).innerHTML =
-    conferidos;
-
-    document.getElementById(
-        "kpiDivergencias"
-    ).innerHTML =
-    divergencias;
-
-    document.getElementById(
-        "kpiAcuracidade"
-    ).innerHTML =
-    acuracidade.toFixed(1) + "%";
-
-}
-
-/* ==========================================
-FINALIZAR
-========================================== */
-
-function finalizarInventario(){
-
-    let divergencias = 0;
-
-    materiais.forEach((m,i)=>{
+        conferidos++;
 
         const contado =
-        Number(
-            document.getElementById(
-                `contado_${i}`
-            ).value
+        Number(valorDigitado);
+
+        const sistema =
+        numero(
+            m.estoque ||
+            m.quantidade ||
+            0
         );
 
-        if(
-            contado !== m.estoque
-        ){
+        if(contado !== sistema){
             divergencias++;
         }
 
     });
 
-    const total =
-    materiais.length;
-
     const conformes =
-    total-divergencias;
+    conferidos - divergencias;
 
     const acuracidade =
+    conferidos > 0
+    ? (conformes / conferidos) * 100
+    : 0;
 
-        (
-            conformes
-            /
-            total
-        )*100;
+    el("kpiTotal").innerHTML =
+    materiais.length;
 
-    document.getElementById(
-        "resultadoFinal"
-    ).style.display =
-    "block";
+    el("kpiContados").innerHTML =
+    conferidos;
 
-    document.getElementById(
-        "qtItens"
-    ).innerHTML =
-    total;
-
-    document.getElementById(
-        "qtConformes"
-    ).innerHTML =
-    conformes;
-
-    document.getElementById(
-        "qtDivergencias"
-    ).innerHTML =
+    el("kpiDivergencias").innerHTML =
     divergencias;
 
-    document.getElementById(
-        "acuracidade"
-    ).innerHTML =
-    acuracidade.toFixed(1)
-    + "%";
+    el("kpiAcuracidade").innerHTML =
+    acuracidade.toFixed(1) + "%";
 
-    window.scrollTo({
+}
 
-        top:
-        document.body.scrollHeight,
+/* ==========================================
+FINALIZAR INVENTÁRIO
+========================================== */
 
-        behavior:"smooth"
+function finalizarInventario(){
 
+    if(
+        !materiais.length
+    ){
+        alert(
+            "Nenhum inventário iniciado."
+        );
+
+        return;
+    }
+
+    let conferidos = 0;
+    let divergencias = 0;
+
+    materiais.forEach((m,i) => {
+
+        const campo =
+        el(`contado_${i}`);
+
+        if(!campo){
+            return;
+        }
+
+        const valorDigitado =
+        String(
+            campo.value || ""
+        ).trim();
+
+        if(valorDigitado === ""){
+            return;
+        }
+
+        conferidos++;
+
+        const contado =
+        Number(valorDigitado);
+
+        const sistema =
+        numero(
+            m.estoque ||
+            m.quantidade ||
+            0
+        );
+
+        if(contado !== sistema){
+            divergencias++;
+        }
+
+    });
+
+    if(
+        conferidos < materiais.length
+    ){
+
+        const continuar =
+        confirm(
+            `Ainda existem ${materiais.length - conferidos} item(ns) sem contagem.
+
+Deseja finalizar mesmo assim?`
+        );
+
+        if(!continuar){
+            return;
+        }
+
+    }
+
+    const conformes =
+    conferidos - divergencias;
+
+    const acuracidade =
+    conferidos > 0
+    ? (conformes / conferidos) * 100
+    : 0;
+
+    el("resultadoFinal").style.display =
+    "block";
+
+    el("qtItens").innerHTML =
+    materiais.length;
+
+    el("qtConformes").innerHTML =
+    conformes;
+
+    el("qtDivergencias").innerHTML =
+    divergencias;
+
+    el("acuracidade").innerHTML =
+    acuracidade.toFixed(1) + "%";
+
+    el("resultadoFinal").scrollIntoView({
+        behavior:"smooth",
+        block:"start"
     });
 
 }
@@ -1142,39 +1392,41 @@ POPULAR FILTROS
 ========================================== */
 
 document.addEventListener(
-
     "DOMContentLoaded",
+    function(){
 
-    ()=>{
+        if(el("regional")){
+            el("regional").innerHTML = `
+                <option value="CENTRO">CENTRO</option>
+                <option value="LESTE">LESTE</option>
+                <option value="OESTE">OESTE</option>
+            `;
+        }
 
-        document.getElementById(
-            "regional"
-        ).innerHTML = `
-            <option>CENTRO</option>
-            <option>LESTE</option>
-            <option>OESTE</option>
-        `;
+        if(el("polo")){
+            el("polo").innerHTML = `
+                <option value="JOÃO PESSOA">JOÃO PESSOA</option>
+                <option value="CAMPINA GRANDE">CAMPINA GRANDE</option>
+            `;
+        }
 
-        document.getElementById(
-            "polo"
-        ).innerHTML = `
-            <option>JOÃO PESSOA</option>
-            <option>CAMPINA GRANDE</option>
-        `;
+        if(el("base")){
+            el("base").innerHTML = `
+                <option value="SEDE">SEDE</option>
+                <option value="ALMOXARIFADO">ALMOXARIFADO</option>
+            `;
+        }
 
-        document.getElementById(
-            "base"
-        ).innerHTML = `
-            <option>SEDE</option>
-            <option>ALMOXARIFADO</option>
-        `;
+        if(el("categoria")){
+            el("categoria").value =
+            "TODOS";
+        }
 
     }
-
 );
 
 </script>
-
-            </body>
+</body>
+</html>
     
            
