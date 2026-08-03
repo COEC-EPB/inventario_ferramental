@@ -3,74 +3,313 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Inventário de Materiais</title>
+<title>Inventários | Controle EPI / EPC / Ferramental</title>
 
-<link rel="stylesheet"
+<link
+rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <style>
 
-body{
-    margin:0;
-    background:#F5F7FA;
-    font-family:Segoe UI;
+:root{
+
+    --azul:#0097CE;
+    --azulEscuro:#0077B6;
+    --laranja:#F36F21;
+    --verde:#28A745;
+    --vermelho:#DC3545;
+    --cinza:#F5F7FA;
+    --branco:#FFFFFF;
+
 }
 
-.container{
-    max-width:1400px;
-    margin:auto;
-    padding:20px;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
 }
+
+body{
+    background:var(--cinza);
+}
+
+/* ==========================
+SIDEBAR
+========================== */
+
+.sidebar{
+
+    position:fixed;
+
+    left:0;
+    top:0;
+    bottom:0;
+
+    width:260px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #0097CE,
+        #0077B6
+    );
+
+    color:white;
+
+    padding:25px;
+
+    box-shadow:
+    4px 0 20px rgba(0,0,0,.15);
+
+}
+
+.logo{
+
+    text-align:center;
+
+    margin-bottom:30px;
+
+}
+
+.logo h1{
+
+    font-size:34px;
+
+    font-weight:900;
+
+}
+
+.logo span{
+
+    font-size:14px;
+
+    opacity:.9;
+
+}
+
+.menu{
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+
+}
+
+.menu a{
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    transition:.2s;
+
+    font-weight:600;
+
+}
+
+.menu a:hover{
+
+    background:
+    rgba(255,255,255,.15);
+
+}
+
+.menu .ativo{
+
+    background:white;
+    color:#0097CE;
+
+}
+
+/* ==========================
+MAIN
+========================== */
+
+.main{
+
+    margin-left:260px;
+
+    padding:25px;
+
+}
+
+/* ==========================
+HEADER
+========================== */
+
+.header{
+
+    background:white;
+
+    border-radius:22px;
+
+    padding:25px;
+
+    box-shadow:
+    0 8px 25px rgba(0,0,0,.08);
+
+    display:flex;
+
+    justify-content:
+    space-between;
+
+    align-items:center;
+
+}
+
+.header h1{
+
+    color:#333;
+    margin-bottom:6px;
+
+}
+
+.header small{
+
+    color:#777;
+
+}
+
+/* ==========================
+CARDS RESUMO
+========================== */
+
+.cardsResumo{
+
+    display:none;
+
+    margin-top:20px;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:20px;
+
+}
+
+.cardResumo{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,.08);
+
+    text-align:center;
+
+}
+
+.cardResumo h2{
+
+    color:#0097CE;
+
+    font-size:42px;
+
+}
+
+.cardResumo small{
+
+    color:#666;
+
+}
+
+/* ==========================
+CONFIGURAÇÃO INVENTÁRIO
+========================== */
 
 .card{
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    box-shadow:0 8px 20px rgba(0,0,0,.08);
-    margin-bottom:20px;
-}
 
-h1{
-    color:#0097CE;
+    background:white;
+
+    margin-top:20px;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,.08);
+
 }
 
 .grid{
+
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
     gap:15px;
+
 }
 
+label{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    margin-bottom:5px;
+
+    display:block;
+
+}
+
+select,
 input,
-select{
-    width:100%;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:10px;
-    box-sizing:border-box;
-}
+textarea{
 
-button{
-    border:none;
-    cursor:pointer;
-    border-radius:10px;
+    width:100%;
+
+    padding:12px;
+
+    border:1px solid #DADADA;
+
+    border-radius:12px;
+
 }
 
 .btn{
+
+    border:none;
+
     background:#0097CE;
+
     color:white;
+
     padding:15px 25px;
-    font-weight:bold;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-weight:700;
+
 }
 
-.btn-success{
-    background:#28A745;
+.btn:hover{
+
+    background:#0077B6;
+
 }
 
-.btn-danger{
-    background:#dc3545;
-}
+/* ==========================
+ITENS INVENTÁRIO
+========================== */
 
 #inventarioArea{
     display:none;
@@ -78,27 +317,75 @@ button{
 
 .item{
 
-    border:1px solid #E5E5E5;
-    border-radius:15px;
+    background:white;
 
-    padding:20px;
+    border-radius:20px;
+
+    padding:25px;
+
+    margin-top:20px;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,.08);
+
+    border-left:
+    6px solid var(--azul);
+
+}
+
+.item-header{
+
+    display:flex;
+
+    justify-content:
+    space-between;
+
+    align-items:center;
+
     margin-bottom:15px;
 
 }
 
-.item h3{
-    margin-top:0;
+.item-header h3{
+
+    color:#333;
+
+}
+
+.codigo{
+
+    background:#F5F7FA;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
 }
 
 .item-grid{
+
     display:grid;
-    grid-template-columns:180px 180px 1fr;
+
+    grid-template-columns:
+    180px 220px 1fr;
+
     gap:15px;
+
+}
+
+.sistema{
+
+    background:#F5F7FA;
 }
 
 .status{
-    font-weight:bold;
-    margin-top:10px;
+
+    margin-top:15px;
+
+    font-weight:700;
+
 }
 
 .ok{
@@ -109,30 +396,81 @@ button{
     color:#DC3545;
 }
 
-.resumo{
+/* ==========================
+FINALIZAR
+========================== */
 
-    display:grid;
-    grid-template-columns:
-    repeat(4,1fr);
+.btn-finalizar{
 
-    gap:15px;
+    width:100%;
 
-}
+    margin-top:25px;
 
-.resumo-card{
+    height:60px;
 
-    background:white;
+    border:none;
 
     border-radius:15px;
 
-    padding:20px;
+    background:
+    linear-gradient(
+        90deg,
+        #28A745,
+        #34C759
+    );
 
-    text-align:center;
+    color:white;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
 }
 
-.numero{
-    font-size:35px;
-    font-weight:bold;
+/* ==========================
+RESULTADO
+========================== */
+
+#resultadoFinal{
+    display:none;
+}
+
+.resultado{
+
+    margin-top:20px;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:20px;
+
+}
+
+.resultado-card{
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,.08);
+
+    text-align:center;
+
+}
+
+.resultado-card h2{
+
+    color:#0097CE;
+
+    font-size:40px;
+
 }
 
 </style>
@@ -141,137 +479,311 @@ button{
 
 <body>
 
-<div class="container">
+<div class="sidebar">
 
-<div class="card">
+    <div class="logo">
 
-<h1>
-📋 Novo Inventário
-</h1>
+        <h1>ENERGISA</h1>
 
-<br>
+        <span>
+            Controle de EPI
+        </span>
 
-<div class="grid">
+    </div>
 
-<div>
-<label>Regional</label>
-<select id="regional">
-<option>CENTRO</option>
-<option>LESTE</option>
-<option>OESTE</option>
-</select>
+    <nav class="menu">
+
+        <a href="https://coec-epb.github.io/Controle-EPI/">
+
+            <i class="bi bi-grid"></i>
+
+            Dashboard
+
+        </a>
+
+        <a>
+
+            <i class="bi bi-box-seam"></i>
+
+            Equipamentos
+
+        </a>
+
+        <a>
+
+            <i class="bi bi-arrow-left-right"></i>
+
+            Movimentações
+
+        </a>
+
+        <a class="ativo">
+
+            <i class="bi bi-clipboard-check"></i>
+
+            Inventários
+
+        </a>
+
+        <a>
+
+            <i class="bi bi-bar-chart"></i>
+
+            Relatórios
+
+        </a>
+
+    </nav>
+
 </div>
 
-<div>
-<label>Polo</label>
-<select id="polo">
-<option>JOÃO PESSOA</option>
-<option>CAMPINA GRANDE</option>
-</select>
-</div>
+<div class="main">
 
-<div>
-<label>Base</label>
-<select id="base">
-<option>SEDE</option>
-</select>
-</div>
+    <div class="header">
 
-<div>
-<label>Categoria</label>
-<select id="categoria">
-<option>EPI/EPC</option>
-<option>FERRAMENTAL</option>
-<option>TODOS</option>
-</select>
-</div>
+        <div>
 
-</div>
+            <h1>
+                📋 Inventário de Materiais
+            </h1>
 
-<br>
+            <small>
+                Controle físico de estoque
+            </small>
 
-<button
-class="btn"
-onclick="iniciarInventario()">
+        </div>
 
-Iniciar Inventário
+    </div>
 
-</button>
+    <div class="cardsResumo">
 
-</div>
+        <div class="cardResumo">
 
-<div id="inventarioArea">
+            <h2 id="kpiTotal">
+                0
+            </h2>
 
-<div class="card">
+            <small>
+                Itens
+            </small>
 
-<h2>
-Materiais para Inventário
+        </div>
+
+        <div class="cardResumo">
+
+            <h2 id="kpiContados">
+                0
+            </h2>
+
+            <small>
+                Conferidos
+            </small>
+
+        </div>
+
+        <div class="cardResumo">
+
+            <h2 id="kpiDivergencias">
+                0
+            </h2>
+
+            <small>
+                Divergências
+            </small>
+
+        </div>
+
+        <div class="cardResumo">
+
+            <h2 id="kpiAcuracidade">
+                0%
+            </h2>
+
+            <small>
+                Acuracidade
+            </small>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>
+    Novo Inventário
 </h2>
 
-<div id="listaMateriais">
+<p style="
+margin-top:10px;
+color:#666;
+line-height:24px;
+">
+Selecione a Regional, Polo, Base e Categoria para iniciar a conferência física dos materiais.
+</p>
 
-</div>
+        <br>
 
-<br>
+        <div class="grid">
 
-<button
-class="btn-success btn"
-onclick="finalizarInventario()">
+            <div>
 
-Finalizar Inventário
+                <label>
+                    Regional
+                </label>
 
-</button>
+                <select id="regional">
 
-</div>
+                    <option>
+                        Selecione
+                    </option>
 
-</div>
+                </select>
 
-<div id="resultadoFinal"
-style="display:none">
+            </div>
 
-<div class="resumo">
+            <div>
 
-<div class="resumo-card">
+                <label>
+                    Polo
+                </label>
 
-<div class="numero"
-id="qtItens">
-0
-</div>
+                <select id="polo">
 
-Itens
+                    <option>
+                        Selecione
+                    </option>
 
-</div>
+                </select>
 
-<div class="resumo-card">
+            </div>
 
-<div class="numero"
-id="qtConformes">
-0
-</div>
+            <div>
 
-Conformes
+                <label>
+                    Base
+                </label>
 
-</div>
+                <select id="base">
 
-<div class="resumo-card">
+                    <option>
+                        Selecione
+                    </option>
 
-<div class="numero"
-id="qtDivergencias">
-0
-</div>
+                </select>
 
-Divergências
+            </div>
 
-</div>
+            <div>
 
-<div class="resumo-card">
+                <label>
+                    Categoria
+                </label>
 
-<div class="numero"
-id="acuracidade">
-0%
-</div>
+                <select id="categoria">
 
-Acuracidade
+                    <option value="TODOS">
+                        Todos
+                    </option>
+
+                    <option value="EPI">
+                        EPI/EPC
+                    </option>
+
+                    <option value="FERRAMENTAL">
+                        Ferramental
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <br>
+
+        <button
+        class="btn"
+        onclick="iniciarInventario()">
+
+            🚀 Iniciar Inventário
+
+        </button>
+
+    </div>
+
+    <div id="inventarioArea">
+
+        <div class="card">
+
+            <h2>
+                Materiais Encontrados
+            </h2>
+
+            <br>
+
+            <div id="listaMateriais">
+
+            </div>
+
+            <button
+            class="btn-finalizar"
+            onclick="finalizarInventario()">
+
+                ✅ Finalizar Inventário
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="resultadoFinal">
+
+        <div class="resultado">
+
+            <div class="resultado-card">
+
+                <h2 id="qtItens">
+                    0
+                </h2>
+
+                Itens
+
+            </div>
+
+            <div class="resultado-card">
+
+                <h2 id="qtConformes">
+                    0
+                </h2>
+
+                Conformes
+
+            </div>
+
+            <div class="resultado-card">
+
+                <h2 id="qtDivergencias">
+                    0
+                </h2>
+
+                Divergências
+
+            </div>
+
+            <div class="resultado-card">
+
+                <h2 id="acuracidade">
+                    0%
+                </h2>
+
+                <div class="resultado-card">
+
+    <h2 id="acuracidade">
+        0%
+    </h2>
+
+    Acuracidade
 
 </div>
 
@@ -283,105 +795,146 @@ Acuracidade
 
 <script>
 
-let materiais=[];
+let materiais = [];
+
+/* ==========================================
+INICIAR INVENTÁRIO
+========================================== */
 
 async function iniciarInventario(){
 
-    const ok =
-    confirm(
+    const regional =
+    document.getElementById(
+        "regional"
+    ).value;
 
-        "Deseja iniciar o inventário?"
+    const polo =
+    document.getElementById(
+        "polo"
+    ).value;
 
-    );
+    const base =
+    document.getElementById(
+        "base"
+    ).value;
 
-    if(!ok){
+    const categoria =
+    document.getElementById(
+        "categoria"
+    ).value;
+
+    if(
+        !confirm(
+            `Deseja iniciar o inventário?\n\nRegional: ${regional}\nPolo: ${polo}\nBase: ${base}\nCategoria: ${categoria}`
+        )
+    ){
         return;
     }
 
+    document.querySelector(
+        ".cardsResumo"
+    ).style.display = "grid";
+
     /*
-      depois troca pelo endpoint
-      API/equipamentos
+      TROCAR PELO WORKER
     */
 
-    materiais = [
+    const resp = await authFetch(
+    `${API}/inventario/materiais?regional=${regional}&polo=${polo}&base=${base}&categoria=${categoria}`
+);
 
-        {
-            codigo:"CAP001",
-            nome:"Capacete Classe B",
-            estoque:40
-        },
+const dados = await resp.json();
 
-        {
-            codigo:"LUV001",
-            nome:"Luva Vaqueta",
-            estoque:22
-        },
+materiais = dados.dados || [];
 
-        {
-            codigo:"BOT001",
-            nome:"Botina Eletricista",
-            estoque:15
-        }
-
-    ];
+    document.getElementById(
+        "kpiTotal"
+    ).innerHTML =
+    materiais.length;
 
     document.getElementById(
         "inventarioArea"
-    ).style.display="block";
+    ).style.display =
+    "block";
 
     renderInventario();
 
 }
 
+/* ==========================================
+RENDERIZA ITENS
+========================================== */
+
 function renderInventario(){
 
     const html =
-    materiais.map((m,i)=>`
+    materiais.map((m,i) => `
 
         <div class="item">
 
-            <h3>
-                ${m.nome}
-            </h3>
+            <div class="item-header">
 
-            <div>
-                Código:
-                <b>${m.codigo}</b>
+                <h3>
+                    ${m.nome}
+                </h3>
+
+                <span class="codigo">
+                    ${m.codigo}
+                </span>
+
             </div>
-
-            <br>
 
             <div class="item-grid">
 
                 <div>
 
-                    Sistema
+                    <label>
+                        Quantidade Sistema
+                    </label>
 
                     <input
                     disabled
+                    class="sistema"
                     value="${m.estoque}">
 
                 </div>
 
                 <div>
 
-                    Contado
+                    <label>
+                        Quantidade Contada
+                    </label>
 
                     <input
                     type="number"
+                    value="${m.estoque}"
                     id="contado_${i}"
-                    value="${m.estoque}">
+
+                    oninput="
+                    atualizarStatus(${i})
+                    ">
 
                 </div>
 
                 <div>
 
-                    Observação
+                    <label>
+                        Observação
+                    </label>
 
                     <input
-                    id="obs_${i}">
+                    id="obs_${i}"
+                    placeholder="Observações do inventário">
 
                 </div>
+
+            </div>
+
+            <div
+            id="status_${i}"
+            class="status ok">
+
+                ✅ Conforme
 
             </div>
 
@@ -389,31 +942,81 @@ function renderInventario(){
 
     `).join("");
 
-    document
-    .getElementById(
+    document.getElementById(
         "listaMateriais"
-    )
-    .innerHTML=html;
+    ).innerHTML =
+    html;
 
 }
 
-function finalizarInventario(){
+/* ==========================================
+ATUALIZA STATUS
+========================================== */
 
-    let divergencias=0;
+function atualizarStatus(indice){
 
-    materiais.forEach(
+    const sistema =
+    materiais[indice].estoque;
 
-        (m,i)=>{
+    const contado =
+    Number(
+        document.getElementById(
+            `contado_${indice}`
+        ).value
+    );
 
-            const contado =
-            Number(
+    const status =
+    document.getElementById(
+        `status_${indice}`
+    );
 
-                document
-                .getElementById(
-                    `contado_${i}`
-                ).value
+    if(contado === sistema){
 
-            );
+        status.className =
+        "status ok";
+
+        status.innerHTML =
+        "✅ Conforme";
+
+    }
+    else{
+
+        const diferenca =
+        contado - sistema;
+
+        status.className =
+        "status divergencia";
+
+        status.innerHTML =
+        `⚠ Divergência (${diferenca})`;
+
+    }
+
+    atualizarKpis();
+
+}
+
+/* ==========================================
+KPIs
+========================================== */
+
+function atualizarKpis(){
+
+    let conferidos = 0;
+    let divergencias = 0;
+
+    materiais.forEach((m,i)=>{
+
+        const contado =
+        Number(
+            document.getElementById(
+                `contado_${i}`
+            ).value
+        );
+
+        if(!isNaN(contado)){
+
+            conferidos++;
 
             if(
                 contado !== m.estoque
@@ -423,7 +1026,64 @@ function finalizarInventario(){
 
         }
 
-    );
+    });
+
+    const acuracidade =
+
+        conferidos
+        ?
+
+        (
+            (conferidos-divergencias)
+            /
+            conferidos
+        )*100
+
+        :
+
+        0;
+
+    document.getElementById(
+        "kpiContados"
+    ).innerHTML =
+    conferidos;
+
+    document.getElementById(
+        "kpiDivergencias"
+    ).innerHTML =
+    divergencias;
+
+    document.getElementById(
+        "kpiAcuracidade"
+    ).innerHTML =
+    acuracidade.toFixed(1) + "%";
+
+}
+
+/* ==========================================
+FINALIZAR
+========================================== */
+
+function finalizarInventario(){
+
+    let divergencias = 0;
+
+    materiais.forEach((m,i)=>{
+
+        const contado =
+        Number(
+            document.getElementById(
+                `contado_${i}`
+            ).value
+        );
+
+        if(
+            contado !== m.estoque
+        ){
+            divergencias++;
+        }
+
+    });
 
     const total =
     materiais.length;
@@ -432,46 +1092,88 @@ function finalizarInventario(){
     total-divergencias;
 
     const acuracidade =
-    (
-        conformes/
-        total
-    )*100;
 
-    document
-    .getElementById(
+        (
+            conformes
+            /
+            total
+        )*100;
+
+    document.getElementById(
         "resultadoFinal"
-    )
-    .style.display="block";
+    ).style.display =
+    "block";
 
-    document
-    .getElementById(
+    document.getElementById(
         "qtItens"
-    )
-    .innerHTML=total;
+    ).innerHTML =
+    total;
 
-    document
-    .getElementById(
+    document.getElementById(
         "qtConformes"
-    )
-    .innerHTML=conformes;
+    ).innerHTML =
+    conformes;
 
-    document
-    .getElementById(
+    document.getElementById(
         "qtDivergencias"
-    )
-    .innerHTML=divergencias;
+    ).innerHTML =
+    divergencias;
 
-    document
-    .getElementById(
+    document.getElementById(
         "acuracidade"
-    )
-    .innerHTML=
+    ).innerHTML =
     acuracidade.toFixed(1)
     + "%";
 
+    window.scrollTo({
+
+        top:
+        document.body.scrollHeight,
+
+        behavior:"smooth"
+
+    });
+
 }
+
+/* ==========================================
+POPULAR FILTROS
+========================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    ()=>{
+
+        document.getElementById(
+            "regional"
+        ).innerHTML = `
+            <option>CENTRO</option>
+            <option>LESTE</option>
+            <option>OESTE</option>
+        `;
+
+        document.getElementById(
+            "polo"
+        ).innerHTML = `
+            <option>JOÃO PESSOA</option>
+            <option>CAMPINA GRANDE</option>
+        `;
+
+        document.getElementById(
+            "base"
+        ).innerHTML = `
+            <option>SEDE</option>
+            <option>ALMOXARIFADO</option>
+        `;
+
+    }
+
+);
 
 </script>
 
-</body>
-</html>
+            </body>
+    
+           
