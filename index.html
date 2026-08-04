@@ -773,12 +773,6 @@ Selecione a Regional, Polo, Base e Categoria para iniciar a conferência física
 
             <div class="resultado-card">
 
-                <h2 id="acuracidade">
-                    0%
-                </h2>
-
-                <div class="resultado-card">
-
     <h2 id="acuracidade">
         0%
     </h2>
@@ -786,7 +780,6 @@ Selecione a Regional, Polo, Base e Categoria para iniciar a conferência física
     Acuracidade
 
 </div>
-
 </div>
 
 </div>
@@ -1391,35 +1384,154 @@ Deseja finalizar mesmo assim?`
 POPULAR FILTROS
 ========================================== */
 
-document.addEventListener(
+    function carregarRegionais(){
+    const ESTRUTURA = {
+
+    "LESTE":{
+
+        "JOÃO PESSOA":[
+            "CABEDELO",
+            "SEDE",
+            "CRUZ DO PEIXE",
+            "PARATIBE",
+            "SANTA RITA",
+            "MANGABEIRA"
+        ],
+
+        "ITABAIANA":[
+            "ITABAIANA",
+            "INGÁ",
+            "GURINHÉM",
+            "APORÁ"
+        ],
+
+        "MAMANGUAPE":[
+            "MAMANGUAPE",
+            "SAPÉ",
+            "BAÍA DA TRAIÇÃO",
+            "MATARACA"
+        ]
+
+    }
+
+};
+    const regional =
+    el("regional");
+
+    regional.innerHTML = `
+        <option value="">
+            Selecione
+        </option>
+    `;
+
+    Object.keys(ESTRUTURA)
+    .forEach(r => {
+
+        regional.innerHTML += `
+            <option value="${r}">
+                ${r}
+            </option>
+        `;
+
+    });
+        
+
+}
+
+    function carregarPolos(){
+
+    const regional =
+    el("regional").value;
+
+    const polo =
+    el("polo");
+
+    polo.innerHTML = `
+        <option value="">
+            Selecione
+        </option>
+    `;
+
+    el("base").innerHTML = `
+        <option value="">
+            Selecione
+        </option>
+    `;
+
+    if(!ESTRUTURA[regional]){
+        return;
+    }
+
+    Object.keys(
+        ESTRUTURA[regional]
+    ).forEach(p => {
+
+        polo.innerHTML += `
+            <option value="${p}">
+                ${p}
+            </option>
+        `;
+
+    });
+
+}
+
+    function carregarBases(){
+
+    const regional =
+    el("regional").value;
+
+    const polo =
+    el("polo").value;
+
+    const base =
+    el("base");
+
+    base.innerHTML = `
+        <option value="">
+            Selecione
+        </option>
+    `;
+
+    if(
+        !ESTRUTURA[regional] ||
+        !ESTRUTURA[regional][polo]
+    ){
+        return;
+    }
+
+    ESTRUTURA[regional][polo]
+    .forEach(b => {
+
+        base.innerHTML += `
+            <option value="${b}">
+                ${b}
+            </option>
+        `;
+
+    });
+
+}
+    document.addEventListener(
     "DOMContentLoaded",
     function(){
 
-        if(el("regional")){
-            el("regional").innerHTML = `
-                <option value="CENTRO">CENTRO</option>
-                <option value="LESTE">LESTE</option>
-                <option value="OESTE">OESTE</option>
-            `;
-        }
+        carregarRegionais();
 
-        if(el("polo")){
-            el("polo").innerHTML = `
-                <option value="JOÃO PESSOA">JOÃO PESSOA</option>
-                <option value="CAMPINA GRANDE">CAMPINA GRANDE</option>
-            `;
-        }
+        el("regional")
+        .addEventListener(
+            "change",
+            carregarPolos
+        );
 
-        if(el("base")){
-            el("base").innerHTML = `
-                <option value="SEDE">SEDE</option>
-                <option value="ALMOXARIFADO">ALMOXARIFADO</option>
-            `;
-        }
+        el("polo")
+        .addEventListener(
+            "change",
+            carregarBases
+        );
 
         if(el("categoria")){
-            el("categoria").value =
-            "TODOS";
+            el("categoria").value = "TODOS";
         }
 
     }
@@ -1428,5 +1540,3 @@ document.addEventListener(
 </script>
 </body>
 </html>
-    
-           
